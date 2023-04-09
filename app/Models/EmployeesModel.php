@@ -50,12 +50,12 @@ class EmployeesModel extends Model
 
         $query = $this->db->query($sql);
 
-        if($total_flag)
+        if ($total_flag)
             return count($query->getResultArray());
-            
+
         return $query->getResultArray();
     }
-    
+
     public function countAll()
     {
         $query = $this->db->query("SELECT COUNT(*) as total FROM employees e LEFT JOIN departments d ON(e.department_id = d.id);
@@ -64,7 +64,7 @@ class EmployeesModel extends Model
         return $query->getRow()->total;
     }
 
-    
+
     public function getDepartments()
     {
         $query = $this->db->query("SELECT id, name FROM departments");
@@ -76,15 +76,28 @@ class EmployeesModel extends Model
         $query = $this->db->query("SELECT * FROM employees WHERE id = $id");
         return $query->getRowArray();
     }
+    
+    public function getEmployeeByEmail($email)
+    {
+        $sql = "SELECT * FROM employees WHERE email = '$email'";
+        $query = $this->db->query($sql);
+        return $query->getRowArray();
+    }
 
     public function addEditEmployee($data)
     {
-        if($data['id'] != '' && $data['id'] > 0)
-            $query = $this->db->table('employees')->update($data, ['id' => $data['id']]);
-        else
-            $query = $this->db->table('employees')->insert($data);
-            
-        return $this->db->insertID();
+        if ($data['id'] != '' && $data['id'] > 0) {
+            // dd('yo');
+            if ($data['photo'] == '')
+                unset($data['photo']);
+
+            $this->db->table('employees')->update($data, ['id' => $data['id']]);
+            return 1;
+
+        } else {
+            $this->db->table('employees')->insert($data);
+            return 2;
+        }
     }
 
     public function deleteEmployee($id)

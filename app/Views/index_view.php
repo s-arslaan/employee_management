@@ -37,6 +37,7 @@
                             <th scope="col">Phone</th>
                             <th scope="col">Salary</th>
                             <th scope="col">Status</th>
+                            <th scope="col">Photo</th>
                             <th scope="col"></th>
                             <th scope="col"></th>
                         </tr>
@@ -46,36 +47,23 @@
         </div>
     </div>
 
-    <!-- Add Employee File Modal -->
-    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <!-- Employee Image Modal -->
+    <div class="modal fade" id="imgView" tabindex="-1" aria-labelledby="imgView" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addEmployeeModalLabel">Add Employee</h5>
+                    <h5 class="modal-title" id="imgView">Employee Image</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="<?= base_url('employees/addEmployee') ?>" method="post" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <!-- <label for="name" class="col-form-label">Name</label> -->
-                            <input class="form-control my-2" type="text" name="name" placeholder="Enter Name" required>
-                            <input class="form-control my-2" type="email" name="email" placeholder="Enter Email" required>
-                            <select class="form-select my-2" aria-label="select department" required>
-                                <option selected>Select Department</option>
-                                <?php foreach ($departments as $department) { ?>
-                                    <option value="<?= $department['id'] ?>"><?= $department['name'] ?></option>
-                                <?php } ?>
-                            </select>
-                            <input class="form-control my-2" type="number" name="phone" placeholder="Enter Phone Number" required>
-                            <input class="form-control my-2" type="date" max="2005-12-31" name="dob" placeholder="Select Date of Birth" required>
-                            <input class="form-control my-2" type="file" name="image" placeholder="Select Image" required>
-                            <input class="form-control my-2" type="number" step="0.01" min="0.00" name="salary" placeholder="Enter Salary" required>
+                <div class="modal-body">
+                    <div class="mb-3">
+
+                        <div class="card" style="">
+                            <img src="..." class="card-img-top" id="img_view" alt="employee_img">
                         </div>
+                        <!-- <img src="" id="img_view" alt="employee_img"> -->
                     </div>
-                    <div class="modal-footer">
-                        <input type="submit" class="btn btn-primary" value="Add Employee" id="submit-btn">
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -87,6 +75,16 @@
     <script type="text/javascript" src="<?= base_url() ?>/assets/js/toastr.min.js"></script>
 
     <script>
+        // Image View
+        function imgView(img) {
+
+            if (img == null || img == '' || !img)
+                img = 'default.png';
+
+            $('#img_view').attr('src', '<?= base_url() ?>assets/uploads/' + img);
+            $('#imgView').modal('show');
+        }
+
         $(document).ready(function() {
 
             // Datatable
@@ -126,7 +124,15 @@
                         "data": null,
                         "orderable": false,
                         mRender: function(data, type, row) {
-                            return '<a class="btn btn-outline-info btn-sm" href="<?= base_url('employees/edit/') ?>' + row['emp_id'] + '">EDIT</a>';
+                            // return '<img src="<?= base_url() ?>/assets/images/' + row['photo'] + '" width="50" height="50" />';
+                            return '<button class="btn btn-outline-primary btn-sm" onCLick="imgView(\'' + (row['photo'] == null ? '':row['photo']) + '\')">View</button>';
+                        }
+                    },
+                    {
+                        "data": null,
+                        "orderable": false,
+                        mRender: function(data, type, row) {
+                            return '<a class="btn btn-outline-info btn-sm" href="<?= base_url('employees/addEditEmployee/') ?>' + row['emp_id'] + '">EDIT</a>';
                         }
                     },
                     /* DELETE */
@@ -144,6 +150,9 @@
                 return confirm('Are you sure you want to delete this employee?');
             });
 
+
+
+            // Toastr
             toastr.options.positionClass = "toast-top-center";
             toastr.options.timeOut = 2000;
             toastr.options.extendedTimeOut = 1000;

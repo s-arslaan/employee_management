@@ -20,15 +20,15 @@ class Employees extends BaseController
         $this->db = db_connect();
     }
 
-    public function addEditEmployee()
+    public function addEditEmployee($emp_id = null)
     {
         $rules = [
             'name' => 'required|min_length[3]|max_length[50]',
             'email' => 'required|valid_email',
             'phone' => 'required|min_length[10]|max_length[12]',
             'department' => 'required|numeric',
-            'dob' => 'required|valid_date',
             'salary' => 'required|numeric',
+            'status' => 'required|numeric',
         ];
 
         $data = [
@@ -40,7 +40,22 @@ class Employees extends BaseController
             'dob' => '',
             'salary' => '',
             'status' => '',
+            'photo' => 'default.png',
         ];
+
+        if($emp_id) {
+            $curr_emp = $this->employeesModel->getEmployee($emp_id);
+
+            $data['id'] = $emp_id;
+            $data['name'] = $curr_emp['name'];
+            $data['email'] = $curr_emp['email'];
+            $data['phone'] = $curr_emp['phone'];
+            $data['department_id'] = $curr_emp['department_id'];
+            $data['dob'] = $curr_emp['dob'];
+            $data['salary'] = $curr_emp['salary'];
+            $data['status'] = $curr_emp['status'];
+            $data['photo'] = $curr_emp['photo'] == '' ? 'default.png' : $curr_emp['photo'];
+        }
 
         $data['departments'] = $this->employeesModel->getDepartments();
         $data['title'] = APP_NAME . ' | Add Employee';
@@ -55,12 +70,21 @@ class Employees extends BaseController
             $data['department_id'] = $this->request->getPost('department', FILTER_SANITIZE_SPECIAL_CHARS);
             $data['dob'] = $this->request->getPost('dob', FILTER_SANITIZE_SPECIAL_CHARS);
             $data['salary'] = $this->request->getPost('salary', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['status'] = $this->request->getPost('status', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['photo'] = $this->request->getPost('image', FILTER_SANITIZE_SPECIAL_CHARS);
+
+            // dd($data);
 
             if (!$this->validate($rules)) {
                 $data['validation'] = $this->validator;
             } else {
 
-                if ($this->request->getFile('image') !== null) {
+                if(count($this->employeesModel->getEmployeeByEmail($data['email'])) > 0) {
+                    $this->session->setTempdata('error', 'Email already exists!');
+                    return view('employee_edit', $data);
+                }
+
+                if ($this->request->getFile('image') !== null && $this->request->getFile('image')->isValid()) {
 
                     $img = $this->request->getFile('image');
 
@@ -79,10 +103,13 @@ class Employees extends BaseController
                         if ($size <= 5000000) {
                             // size less than 5 MB
 
-                            if ($img->isValid() && !$img->hasMoved()) {
+                            if (!$img->hasMoved()) {
                                 $newName = $img->getRandomName();
-                                $img->move(WRITEPATH . 'uploads', $newName);
-                                // dd($newName);
+                                $img->move(ROOTPATH . 'public/assets/uploads/', $newName);
+
+                                // Can move to a more secure location, but will need an access function for viewing the image
+                                // $img->move(WRITEPATH . 'uploads', $newName);
+
                             } else {
                                 $this->session->setTempdata('error', 'Something went wrong!');
                                 return view('employee_edit', $data);

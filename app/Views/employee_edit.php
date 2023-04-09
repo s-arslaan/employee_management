@@ -22,27 +22,45 @@
                 <h2 class="my-3"><?= $heading ?></h2>
 
                 <?php
-                    if (isset($validation)) {
-                        echo $validation->listErrors();
-                    }
+                if (isset($validation)) {
+                    echo $validation->listErrors();
+                }
                 ?>
 
                 <div class="mb-3">
                     <form method="post" enctype="multipart/form-data">
                         <!-- <label for="name" class="col-form-label">Name</label> -->
-                        <input class="form-control my-2" type="text" name="name" placeholder="Enter Name" value="<?= $name ?>" required>
-                        <input class="form-control my-2" type="email" name="email" placeholder="Enter Email" value="<?= $email ?>" required>
-                        <select class="form-select my-2" aria-label="select department" name="department" required>
+                        <input class="d-none" type="text" name="emp_id" value="<?= $id ?>">
+                        <input class="form-control my-3" type="text" name="name" placeholder="Enter Name" value="<?= $name ?>" required>
+                        <input class="form-control my-3" type="email" name="email" placeholder="Enter Email" value="<?= $email ?>" required>
+                        <select class="form-select my-3" aria-label="select department" name="department" required>
                             <option selected>Select Department</option>
                             <?php foreach ($departments as $department) { ?>
-                                <option value="<?= $department['id'] ?>" <?= $department_id == $department['id'] ? 'selected':'' ?>><?= $department['name'] ?></option>
+                                <option value="<?= $department['id'] ?>" <?= $department_id == $department['id'] ? 'selected' : '' ?>><?= $department['name'] ?></option>
                             <?php } ?>
                         </select>
-                        <input class="form-control my-2" type="number" name="phone" placeholder="Enter Phone Number" value="<?= $phone ?>" required>
-                        <input class="form-control my-2" type="date" max="2005-12-31" name="dob" placeholder="Select Date of Birth" value="<?= $dob ?>" required>
-                        <input class="form-control my-2" type="file" name="image" placeholder="Select Image" required>
-                        <input class="form-control my-2" type="number" step="0.01" min="0.00" name="salary" value="<?= $salary ?>" placeholder="Enter Salary" required>
+                        <select class="form-select my-3" aria-label="select department" name="status" required>
+                            <option selected>Select Status</option>
+                            <option value="1" <?= $status === "1" ? 'selected' : '' ?>>Enabled</option>
+                            <option value="0" <?= $status === "0" ? 'selected' : '' ?>>Disabled</option>
+                        </select>
+                        <input class="form-control my-3" type="number" name="phone" placeholder="Enter Phone Number" value="<?= $phone ?>" required>
+                        <input class="form-control my-3" type="date" max="2005-12-31" name="dob" placeholder="Select Date of Birth" value="<?= $dob ?>">
+
+                        <input class="form-control my-3" type="number" step="0.01" min="0.00" name="salary" value="<?= $salary ?>" placeholder="Enter Salary" required>
+
+                        <label for="image mb-1">Select Image <?= $id != '' ? '<strong>(Only if you want to update the image)</strong>' : '' ?></label>
+                        <div class="row">
+                            <div class="col-8">
+                                <input class="form-control mb-3" type="file" name="image" id="image" placeholder="Select Image">
+                            </div>
+                            <div class="col-4">
+                                <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#imgView" type="button">Current Image</button>
+                            </div>
+                        </div>
+
                         <input type="submit" class="btn btn-primary" value="Add Employee" id="submit-btn">
+                        <a href="<?= base_url() ?>" class="btn btn-secondary">Cancel</a>
                     </form>
                 </div>
 
@@ -50,36 +68,21 @@
         </div>
     </div>
 
-    <!-- Add Employee File Modal -->
-    <div class="modal fade" id="addEmployeeModal" tabindex="-1" aria-labelledby="addEmployeeModalLabel" aria-hidden="true">
+    <!-- Employee Image Modal -->
+    <div class="modal fade" id="imgView" tabindex="-1" aria-labelledby="imgView" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addEmployeeModalLabel">Add Employee</h5>
+                    <h5 class="modal-title" id="imgView">Employee Image</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form action="<?= base_url('employees/addEmployee') ?>" method="post" enctype="multipart/form-data">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <!-- <label for="name" class="col-form-label">Name</label> -->
-                            <input class="form-control my-2" type="text" name="name" placeholder="Enter Name" required>
-                            <input class="form-control my-2" type="email" name="email" placeholder="Enter Email" required>
-                            <select class="form-select my-2" aria-label="select department" required>
-                                <option selected>Select Department</option>
-                                <?php foreach ($departments as $department) { ?>
-                                    <option value="<?= $department['id'] ?>"><?= $department['name'] ?></option>
-                                <?php } ?>
-                            </select>
-                            <input class="form-control my-2" type="number" name="phone" placeholder="Enter Phone Number" required>
-                            <input class="form-control my-2" type="date" max="2005-12-31" name="dob" placeholder="Select Date of Birth" required>
-                            <input class="form-control my-2" type="file" name="image" placeholder="Select Image" required>
-                            <input class="form-control my-2" type="number" step="0.01" min="0.00" name="salary" placeholder="Enter Salary" required>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="card" style="">
+                            <img src="<?= base_url('assets/uploads/' . $photo) ?>" class="card-img-top" id="img_view" alt="employee_img">
                         </div>
                     </div>
-                    <div class="modal-footer">
-                        <input type="submit" class="btn btn-primary" value="Add Employee" id="submit-btn">
-                    </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
