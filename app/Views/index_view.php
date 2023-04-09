@@ -201,7 +201,7 @@
                             "orderable": false,
                             mRender: function(data, type, row) {
                                 // return '<img src="<?= base_url() ?>/assets/images/' + row['photo'] + '" width="50" height="50" />';
-                                return '<button class="btn btn-outline-primary btn-sm" onCLick="imgView(\'' + (row['photo'] == null ? '' : row['photo']) + '\')">View</button>';
+                                return '<button class="btn btn-outline-primary btn-sm" onCLick="imgView(\'' + (row['photo'] == null ? '' : row['photo']) + '\')">Photo</button>';
                             }
                         },
                         {

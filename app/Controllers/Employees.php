@@ -79,10 +79,12 @@ class Employees extends BaseController
                 $data['validation'] = $this->validator;
             } else {
 
-                if(count($this->employeesModel->getEmployeeByEmail($data['email'])) > 0) {
+                if(count($this->employeesModel->getEmployeeByEmail($data['email'])) > 0 && $data['id'] == '') {
                     $this->session->setTempdata('error', 'Email already exists!');
                     return view('employee_edit', $data);
                 }
+
+                $newName = '';
 
                 if ($this->request->getFile('image') !== null && $this->request->getFile('image')->isValid()) {
 
@@ -135,11 +137,19 @@ class Employees extends BaseController
                     'dob' => $data['dob'],
                     'photo' => $newName,
                     'salary' => $data['salary'],
+                    'status' => $data['status'],
                 ];
 
-                $this->employeesModel->addEditEmployee($newData);
-                $this->session->setTempdata('success', 'Employee added successfully!');
-                return redirect()->to(base_url());
+                if($this->employeesModel->addEditEmployee($newData) == 1) {
+                    $this->session->setTempdata('success', 'Employee added successfully!');
+                    return redirect()->to(base_url());
+                } else if ($this->employeesModel->addEditEmployee($newData) == 2) {
+                    $this->session->setTempdata('success', 'Employee updated successfully!');
+                    return redirect()->to(base_url());
+                } else {
+                    $this->session->setTempdata('error', 'Something went wrong!');
+                    return view('employee_edit', $data);
+                }
             }
         }
         

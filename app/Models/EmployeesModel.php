@@ -81,7 +81,7 @@ class EmployeesModel extends Model
     {
         $sql = "SELECT * FROM employees WHERE email = '$email'";
         $query = $this->db->query($sql);
-        return $query->getRowArray();
+        return $query->getResultArray();
     }
 
     public function addEditEmployee($data)
@@ -92,11 +92,11 @@ class EmployeesModel extends Model
                 unset($data['photo']);
 
             $this->db->table('employees')->update($data, ['id' => $data['id']]);
-            return 1;
+            return 2;
 
         } else {
             $this->db->table('employees')->insert($data);
-            return 2;
+            return 1;
         }
     }
 
