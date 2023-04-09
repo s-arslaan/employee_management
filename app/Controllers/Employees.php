@@ -28,12 +28,15 @@ class Employees extends BaseController
 
     public function get_employees_api()
     {
-        $employees = $this->employeesModel->getEmployees($this->request->getPost());
+        if(!$this->request->isAJAX()) {
+            return $this->fail('No direct access allowed', 400);
+        }
+        
         $data = [
             'draw' => $this->request->getPost('draw'),
             'recordsTotal' => $this->employeesModel->countAll(),
-            'recordsFiltered' => count($employees),
-            'data' => $employees,
+            'recordsFiltered' => $this->employeesModel->getEmployees($this->request->getPost(), true),
+            'data' => $this->employeesModel->getEmployees($this->request->getPost()),
         ];
 
         // $data = [

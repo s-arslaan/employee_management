@@ -31,9 +31,11 @@
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
                             <th scope="col">Email</th>
-                            <th scope="col">Phone</th>
                             <th scope="col">Department</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Phone</th>
                             <th scope="col">Salary</th>
+                            <th scope="col">Status</th>
                             <th scope="col"></th>
                             <th scope="col"></th>
                         </tr>
@@ -93,13 +95,20 @@
                         "data": "email"
                     },
                     {
-                        "data": "phone"
-                    },
-                    {
                         "data": "department"
                     },
                     {
+                        "data": "dob"
+                    },
+                    {
+                        "data": "phone",
+                        "orderable": false,
+                    },
+                    {
                         "data": "salary"
+                    },
+                    {
+                        "data": "status"
                     },
                     {
                         "data": null,
