@@ -25,7 +25,7 @@
                     <button type="button" class="btn btn-outline-primary ms-auto" data-bs-toggle="modal" data-bs-target="#addEmployeeModal">Add Employee</button>
                 </div>
 
-                <table class="table" id="employees_table">
+                <table class="table table-striped table-bordered" id="employees_table">
                     <thead>
                         <tr>
                             <th scope="col">#</th>
@@ -34,7 +34,8 @@
                             <th scope="col">Phone</th>
                             <th scope="col">Department</th>
                             <th scope="col">Salary</th>
-                            <th scope="col">Action</th>
+                            <th scope="col"></th>
+                            <th scope="col"></th>
                         </tr>
                     </thead>
                 </table>
@@ -75,36 +76,48 @@
         $(document).ready(function() {
 
             // Datatable
-            // $('#employees_table').DataTable({
-            //     "processing": true,
-            //     "serverSide": true,
-            //     "ajax": {
-            //         "url": "<?= base_url('employees/get_employees') ?>",
-            //         "type": "POST"
-            //     },
-            //     "columns": [{
-            //             "data": "id"
-            //         },
-            //         {
-            //             "data": "name"
-            //         },
-            //         {
-            //             "data": "email"
-            //         },
-            //         {
-            //             "data": "phone"
-            //         },
-            //         {
-            //             "data": "department"
-            //         },
-            //         {
-            //             "data": "salary"
-            //         },
-            //         {
-            //             "data": "action"
-            //         }
-            //     ]
-            // });
+            $('#employees_table').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "ajax": {
+                    "url": "<?= base_url('employees/get_employees_api') ?>",
+                    "type": "POST"
+                },
+                "columns": [{
+                        "data": "emp_id"
+                    },
+                    {
+                        "data": "name"
+                    },
+                    {
+                        "data": "email"
+                    },
+                    {
+                        "data": "phone"
+                    },
+                    {
+                        "data": "department"
+                    },
+                    {
+                        "data": "salary"
+                    },
+                    {
+                        "data": null,
+                        "orderable": false,
+                        mRender: function(data, type, row) {
+                            return '<a class="btn btn-outline-info btn-sm" href="<?= base_url('employees/edit/') ?>' + row['emp_id'] + '">EDIT</a>';
+                        }
+                    },
+                    /* DELETE */
+                    {
+                        "data": null,
+                        "orderable": false,
+                        mRender: function(data, type, row) {
+                            return '<a class="btn btn-outline-danger btn-sm" href="<?= base_url('employees/delete/') ?>' + row['emp_id'] + '">Del</a>';
+                        }
+                    },
+                ]
+            });
 
             toastr.options.positionClass = "toast-top-center";
             toastr.options.timeOut = 2000;

@@ -2,12 +2,18 @@
 
 namespace App\Controllers;
 
+use App\Models\EmployeesModel;
+use CodeIgniter\API\ResponseTrait;
+
 class Employees extends BaseController
 {
     protected $db;
-    
+    protected $employeesModel;
+    use ResponseTrait;
+
     public function __construct()
     {
+        $this->employeesModel = new EmployeesModel();
         $this->db = db_connect();
     }
 
@@ -19,7 +25,27 @@ class Employees extends BaseController
 
         return view('employees_view', $data);
     }
-    public function get_employees()
+
+    public function get_employees_api()
+    {
+        $employees = $this->employeesModel->getEmployees($this->request->getPost());
+        $data = [
+            'draw' => $this->request->getPost('draw'),
+            'recordsTotal' => $this->employeesModel->countAll(),
+            'recordsFiltered' => count($employees),
+            'data' => $employees,
+        ];
+
+        // $data = [
+        //     'draw' => $this->request->getPost('draw'),
+        //     'recordsTotal' => $this->db->table('employees')->countAll(),
+        //     'recordsFiltered' => $this->db->table('employees')->countAll(),
+        //     'data' => $this->db->table('employees')->get()->getResultArray(),];
+
+        return $this->respond($data, 200);
+    }
+
+    public function get_employees_api1()
     {
         $request = \Config\Services::request();
         $draw = $request->getPost('draw');
@@ -83,5 +109,4 @@ class Employees extends BaseController
         );
         echo json_encode($output);
     }
-
 }

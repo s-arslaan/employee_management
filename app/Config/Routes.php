@@ -30,7 +30,10 @@ $routes->set404Override();
 // We get a performance increase by specifying the default
 // route since we don't have to scan directories.
 $routes->get('/', 'Home::index');
+
+$routes->setAutoRoute(true);
 $routes->get('db', 'DBCreate::index');
+$routes->get('api/employees', 'Employees::get_employees_api');
 
 /*
  * --------------------------------------------------------------------

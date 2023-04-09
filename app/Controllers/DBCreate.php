@@ -35,7 +35,7 @@ class DBCreate extends BaseController
                 mysqli_close($conn);
 
                 if ($this->tables_and_data()) {
-                    $this->session->setTempdata('success', 'Database & Tables created successfully', 3);
+                    $this->session->setTempdata('success', 'Database ('.$db_name.') & Tables created successfully', 3);
                     return redirect()->to(base_url());
                 } else {
                     echo 'Error creating tables and data';
@@ -128,7 +128,7 @@ class DBCreate extends BaseController
                         $date_to = strtotime('31-12-2000');
 
                         foreach ($names as $name) {
-                            $sql .= "(" . mt_rand(1, 5) . ", '$name', '" . date('Y-m-d', mt_rand($date_from, $date_to)) . "', '" . mt_rand(7874015432, 9987855869) . "', '$name@gmail.com', '" . mt_rand(30000, 150000) . "'), ";
+                            $sql .= "(" . mt_rand(1, 5) . ", '$name', '" . date('Y-m-d', mt_rand($date_from, $date_to)) . "', '" . mt_rand(7874015432, 9987855869) . "', '".strtolower($name)."@gmail.com', '" . mt_rand(30000, 150000) . "'), ";
                         }
 
                         $sql = rtrim($sql, ', ');
