@@ -17,6 +17,9 @@ class Home extends BaseController
         $data = [
             'title' => APP_NAME . ' | Home',
             'departments' => $this->employeesModel->getDepartments(),
+            'salary_range_wise_emp' => $this->employeesModel->salaryRangeWiseEmployeeCount(),
+            'highest_department_salaries' => $this->employeesModel->highestSalariesByDepartment(),
+            'youngest_employees_by_department' => $this->employeesModel->youngestEmployeesByDepartment(),
         ];
 
         return view('index_view', $data);

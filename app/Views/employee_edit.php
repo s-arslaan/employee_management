@@ -78,7 +78,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <div class="card" style="">
+                        <div class="card">
                             <img src="<?= base_url('assets/uploads/' . $photo) ?>" class="card-img-top" id="img_view" alt="employee_img">
                         </div>
                     </div>
