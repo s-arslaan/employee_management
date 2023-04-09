@@ -2,6 +2,8 @@
 
 namespace App\Controllers;
 
+use mysqli;
+
 class DBCreate extends BaseController
 {
     public $session;
@@ -17,6 +19,7 @@ class DBCreate extends BaseController
         $username = getenv('database.default.username');
         $password = getenv('database.default.password');
         $db_name = getenv('database.default.database');
+        // dd($servername, $username, $password, $db_name);
 
         // Create connection
         $conn = mysqli_connect($servername, $username, $password);
@@ -31,6 +34,13 @@ class DBCreate extends BaseController
         $sql = "CREATE DATABASE IF NOT EXISTS `$db_name`";
         if (mysqli_query($conn, $sql)) {
             echo 'Database created :: ' . $db_name . '<br>';
+            
+            $sql = "DROP TABLE IF EXISTS `departments`";
+            mysqli_query($conn, $sql);
+            $sql = "DROP TABLE IF EXISTS `employees`";
+            mysqli_query($conn, $sql);
+            echo 'Old Tables dropped if exists <br>';
+            
             mysqli_close($conn);
 
             if ($this->tables_and_data()) {
@@ -62,7 +72,7 @@ class DBCreate extends BaseController
 
             $db = db_connect();
 
-            $dept_sql = 'DROP TABLE IF EXISTS `departments`; CREATE TABLE `departments` (
+            $dept_sql = 'CREATE TABLE `departments` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `name` varchar(50) NOT NULL,
                     `status` tinyint(1) NOT NULL DEFAULT 1,
@@ -97,7 +107,7 @@ class DBCreate extends BaseController
                 if ($builder->insertBatch($dept_data)) {
                     echo 'Data inserted :: departments <br>';
 
-                    $emp_sql = 'DROP TABLE IF EXISTS `employees`; CREATE TABLE `employees` (
+                    $emp_sql = 'CREATE TABLE `employees` (
                         `id` int(11) NOT NULL AUTO_INCREMENT,
                         `department_id` int(11) NOT NULL,
                         `name` varchar(50) NOT NULL,
