@@ -26,20 +26,18 @@ class DBCreate extends BaseController
         }
 
         // Create database
-        $sql = "DROP DATABASE IF EXISTS `$db_name`";
+        // $sql = "DROP DATABASE IF EXISTS `$db_name`";
 
+        $sql = "CREATE DATABASE IF NOT EXISTS `$db_name`";
         if (mysqli_query($conn, $sql)) {
-            $sql = "CREATE DATABASE `$db_name`";
-            if (mysqli_query($conn, $sql)) {
-                echo 'Database created :: ' . $db_name . '<br>';
-                mysqli_close($conn);
+            echo 'Database created :: ' . $db_name . '<br>';
+            mysqli_close($conn);
 
-                if ($this->tables_and_data()) {
-                    $this->session->setTempdata('success', 'Database ('.$db_name.') & Tables created successfully', 3);
-                    return redirect()->to(base_url());
-                } else {
-                    echo 'Error creating tables and data';
-                }
+            if ($this->tables_and_data()) {
+                $this->session->setTempdata('success', 'Database (' . $db_name . ') & Tables created successfully', 3);
+                return redirect()->to(base_url());
+            } else {
+                echo 'Error creating tables and data';
             }
         } else {
             echo "Error creating database: " . mysqli_error($conn);
@@ -64,7 +62,7 @@ class DBCreate extends BaseController
 
             $db = db_connect();
 
-            $dept_sql = 'CREATE TABLE `departments` (
+            $dept_sql = 'DROP TABLE IF EXISTS `departments`; CREATE TABLE `departments` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
                     `name` varchar(50) NOT NULL,
                     `status` tinyint(1) NOT NULL DEFAULT 1,
@@ -99,7 +97,7 @@ class DBCreate extends BaseController
                 if ($builder->insertBatch($dept_data)) {
                     echo 'Data inserted :: departments <br>';
 
-                    $emp_sql = 'CREATE TABLE `employees` (
+                    $emp_sql = 'DROP TABLE IF EXISTS `employees`; CREATE TABLE `employees` (
                         `id` int(11) NOT NULL AUTO_INCREMENT,
                         `department_id` int(11) NOT NULL,
                         `name` varchar(50) NOT NULL,
@@ -128,7 +126,7 @@ class DBCreate extends BaseController
                         $date_to = strtotime('31-12-2000');
 
                         foreach ($names as $name) {
-                            $sql .= "(" . mt_rand(1, 5) . ", '$name', '" . date('Y-m-d', mt_rand($date_from, $date_to)) . "', '" . mt_rand(7874015432, 9987855869) . "', '".strtolower($name)."@gmail.com', '" . mt_rand(30000, 150000) . "'), ";
+                            $sql .= "(" . mt_rand(1, 5) . ", '$name', '" . date('Y-m-d', mt_rand($date_from, $date_to)) . "', '" . mt_rand(7874015432, 9987855869) . "', '" . strtolower($name) . "@gmail.com', '" . mt_rand(30000, 150000) . "'), ";
                         }
 
                         $sql = rtrim($sql, ', ');
