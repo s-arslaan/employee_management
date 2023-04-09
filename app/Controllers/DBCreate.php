@@ -105,7 +105,7 @@ class DBCreate extends BaseController
                         `name` varchar(50) NOT NULL,
                         `dob` date DEFAULT NULL,
                         `phone` varchar(12) NOT NULL,
-                        `photo` varchar(50) DEFAULT NULL,
+                        `photo` varchar(64) DEFAULT NULL,
                         `email` varchar(50) NOT NULL,
                         `salary` decimal(10,2) NOT NULL,
                         `status` tinyint(1) NOT NULL DEFAULT 1,

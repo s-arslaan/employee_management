@@ -9,29 +9,129 @@ class Employees extends BaseController
 {
     protected $db;
     protected $employeesModel;
+    protected $session;
+    protected $helpers = ['form'];
     use ResponseTrait;
 
     public function __construct()
     {
         $this->employeesModel = new EmployeesModel();
+        $this->session = \Config\Services::session();
         $this->db = db_connect();
     }
 
-    public function index()
+    public function addEditEmployee()
     {
-        $data = [
-            'title' => APP_NAME . ' | Employees',
+        $rules = [
+            'name' => 'required|min_length[3]|max_length[50]',
+            'email' => 'required|valid_email',
+            'phone' => 'required|min_length[10]|max_length[12]',
+            'department' => 'required|numeric',
+            'dob' => 'required|valid_date',
+            'salary' => 'required|numeric',
         ];
 
-        return view('employees_view', $data);
+        $data = [
+            'id' => '',
+            'name' => '',
+            'email' => '',
+            'phone' => '',
+            'department_id' => '',
+            'dob' => '',
+            'salary' => '',
+            'status' => '',
+        ];
+
+        $data['departments'] = $this->employeesModel->getDepartments();
+        $data['title'] = APP_NAME . ' | Add Employee';
+        $data['heading'] = 'Add New Employee';
+
+        if ($this->request->is('post')) {
+
+            $data['id'] = $this->request->getPost('emp_id', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['name'] = $this->request->getPost('name', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['email'] = $this->request->getPost('email', FILTER_SANITIZE_EMAIL);
+            $data['phone'] = $this->request->getPost('phone', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['department_id'] = $this->request->getPost('department', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['dob'] = $this->request->getPost('dob', FILTER_SANITIZE_SPECIAL_CHARS);
+            $data['salary'] = $this->request->getPost('salary', FILTER_SANITIZE_SPECIAL_CHARS);
+
+            if (!$this->validate($rules)) {
+                $data['validation'] = $this->validator;
+            } else {
+
+                if ($this->request->getFile('image') !== null) {
+
+                    $img = $this->request->getFile('image');
+
+                    $type = $img->getMimeType();
+                    $size = $img->getSize();
+
+                    $mime_types = array(
+                        'image/bmp',
+                        'image/jpeg',
+                        'image/x-png',
+                        'image/png',
+                        'image/gif'
+                    );
+
+                    if (in_array($type, $mime_types)) {
+                        if ($size <= 5000000) {
+                            // size less than 5 MB
+
+                            if ($img->isValid() && !$img->hasMoved()) {
+                                $newName = $img->getRandomName();
+                                $img->move(WRITEPATH . 'uploads', $newName);
+                                // dd($newName);
+                            } else {
+                                $this->session->setTempdata('error', 'Something went wrong!');
+                                return view('employee_edit', $data);
+                            }
+
+                        } else {
+                            $this->session->setTempdata('error', 'File size should be less than 5 MB!');
+                            return view('employee_edit', $data);
+                        }
+                    } else {
+                        $this->session->setTempdata('error', 'Invalid File!');
+                        return view('employee_edit', $data);
+                        // return redirect()->to(current_url());
+                    }
+                }
+
+                $newData = [
+                    'id' => $data['id'],
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'phone' => $data['phone'],
+                    'department_id' => $data['department_id'],
+                    'dob' => $data['dob'],
+                    'photo' => $newName,
+                    'salary' => $data['salary'],
+                ];
+
+                $this->employeesModel->addEditEmployee($newData);
+                $this->session->setTempdata('success', 'Employee added successfully!');
+                return redirect()->to(base_url());
+            }
+        }
+        
+        return view('employee_edit', $data);
+    }
+
+    public function deleteEmployee($id)
+    {
+        $this->employeesModel->deleteEmployee($id);
+        $this->session->setTempdata('success', 'Employee deleted successfully!');
+        return redirect()->to(base_url());
     }
 
     public function get_employees_api()
     {
-        if(!$this->request->isAJAX()) {
+        if (!$this->request->isAJAX()) {
             return $this->fail('No direct access allowed', 400);
         }
-        
+
         $data = [
             'draw' => $this->request->getPost('draw'),
             'recordsTotal' => $this->employeesModel->countAll(),
@@ -39,77 +139,6 @@ class Employees extends BaseController
             'data' => $this->employeesModel->getEmployees($this->request->getPost()),
         ];
 
-        // $data = [
-        //     'draw' => $this->request->getPost('draw'),
-        //     'recordsTotal' => $this->db->table('employees')->countAll(),
-        //     'recordsFiltered' => $this->db->table('employees')->countAll(),
-        //     'data' => $this->db->table('employees')->get()->getResultArray(),];
-
         return $this->respond($data, 200);
-    }
-
-    public function get_employees_api1()
-    {
-        $request = \Config\Services::request();
-        $draw = $request->getPost('draw');
-        $start = $request->getPost('start');
-        $length = $request->getPost('length');
-        $search = $request->getPost('search');
-        $order = $request->getPost('order');
-        $column_order = array('id', 'name', 'email', 'phone', 'department', 'salary');
-        $column_search = array('name', 'email', 'phone', 'department', 'salary');
-        $order = $column_order[$order[0]['column']];
-        $dir = $order[0]['dir'];
-
-        $builder = $this->db->table('employees');
-        $builder->select('id, name, email, phone, department, salary');
-        if (!empty($search['value'])) {
-            $i = 0;
-            foreach ($column_search as $item) {
-                if ($i === 0) {
-                    $builder->groupStart();
-                    $builder->like($item, $search['value']);
-                } else {
-                    $builder->orLike($item, $search['value']);
-                }
-                if (count($column_search) - 1 == $i) {
-                    $builder->groupEnd();
-                }
-                $i++;
-            }
-        }
-        $builder->orderBy($order, $dir);
-        $builder->limit($length, $start);
-        $query = $builder->get();
-        $data = $query->getResultArray();
-
-        $builder = $this->db->table('employees');
-        $builder->select('id, name, email, phone, department, salary');
-        if (!empty($search['value'])) {
-            $i = 0;
-            foreach ($column_search as $item) {
-                if ($i === 0) {
-                    $builder->groupStart();
-                    $builder->like($item, $search['value']);
-                } else {
-                    $builder->orLike($item, $search['value']);
-                }
-                if (count($column_search) - 1 == $i) {
-                    $builder->groupEnd();
-                }
-                $i++;
-            }
-        }
-        $builder->orderBy($order, $dir);
-        $query = $builder->get();
-        $total = $query->getResultArray();
-
-        $output = array(
-            "draw" => $draw,
-            "recordsTotal" => count($total),
-            "recordsFiltered" => count($total),
-            "data" => $data,
-        );
-        echo json_encode($output);
     }
 }

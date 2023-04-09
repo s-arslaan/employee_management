@@ -64,29 +64,32 @@ class EmployeesModel extends Model
         return $query->getRow()->total;
     }
 
-    public function getEmployees1($data)
+    
+    public function getDepartments()
     {
-        $builder = $this->db->table('employees');
-        $builder->select('id, name, email, phone, department, salary');
-        if (!empty($data['search']['value'])) {
-            $i = 0;
-            foreach ($data['column_search'] as $item) {
-                if ($i === 0) {
-                    $builder->groupStart();
-                    $builder->like($item, $data['search']['value']);
-                } else {
-                    $builder->orLike($item, $data['search']['value']);
-                }
-                if (count($data['column_search']) - 1 == $i) {
-                    $builder->groupEnd();
-                }
-                $i++;
-            }
-        }
-        $builder->orderBy($data['order'], $data['dir']);
-        $builder->limit($data['length'], $data['start']);
-        $query = $builder->get();
-        $result = $query->getResultArray();
-        return $result;
+        $query = $this->db->query("SELECT id, name FROM departments");
+        return $query->getResultArray();
+    }
+
+    public function getEmployee($id)
+    {
+        $query = $this->db->query("SELECT * FROM employees WHERE id = $id");
+        return $query->getRowArray();
+    }
+
+    public function addEditEmployee($data)
+    {
+        if($data['id'] != '' && $data['id'] > 0)
+            $query = $this->db->table('employees')->update($data, ['id' => $data['id']]);
+        else
+            $query = $this->db->table('employees')->insert($data);
+            
+        return $this->db->insertID();
+    }
+
+    public function deleteEmployee($id)
+    {
+        $query = $this->db->table('employees')->delete(['id' => $id]);
+        return $query;
     }
 }
