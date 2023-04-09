@@ -34,13 +34,6 @@ class DBCreate extends BaseController
         $sql = "CREATE DATABASE IF NOT EXISTS `$db_name`";
         if (mysqli_query($conn, $sql)) {
             echo 'Database created :: ' . $db_name . '<br>';
-            
-            $sql = "DROP TABLE IF EXISTS `departments`";
-            mysqli_query($conn, $sql);
-            $sql = "DROP TABLE IF EXISTS `employees`";
-            mysqli_query($conn, $sql);
-            echo 'Old Tables dropped if exists <br>';
-            
             mysqli_close($conn);
 
             if ($this->tables_and_data()) {
@@ -71,6 +64,12 @@ class DBCreate extends BaseController
         try {
 
             $db = db_connect();
+
+            $sql = "DROP TABLE IF EXISTS `departments`";
+            $db->simpleQuery($sql);
+            $sql = "DROP TABLE IF EXISTS `employees`";
+            $db->simpleQuery($sql);
+            echo 'Old Tables dropped if exists <br>';
 
             $dept_sql = 'CREATE TABLE `departments` (
                     `id` int(11) NOT NULL AUTO_INCREMENT,
