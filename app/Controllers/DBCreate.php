@@ -65,9 +65,9 @@ class DBCreate extends BaseController
 
             $db = db_connect();
 
-            $sql = "DROP TABLE IF EXISTS `departments`";
-            $db->simpleQuery($sql);
             $sql = "DROP TABLE IF EXISTS `employees`";
+            $db->simpleQuery($sql);
+            $sql = "DROP TABLE IF EXISTS `departments`";
             $db->simpleQuery($sql);
             echo 'Old Tables dropped if exists <br>';
 
